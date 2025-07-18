@@ -2,23 +2,82 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>MindAR Basit Test</title>
+  <title>MindAR ve model-viewer Toggle</title>
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
-    body, html { margin:0; padding:0; height:100%; overflow:hidden; }
-    a-scene { width:100vw; height:100vh; position: fixed; top:0; left:0; }
+    body, html {
+      margin:0; padding:0; overflow:hidden; height:100%;
+      background-color: black;
+      font-family: sans-serif;
+    }
+    #arScene, #modelViewer {
+      position: fixed; top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background-color: black;
+    }
+    #modelViewer {
+      display: none;
+    }
+    #toggleBtn {
+      position: fixed; top: 20px; left: 20px; z-index: 9999;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      user-select: none;
+    }
   </style>
 </head>
 <body>
-<a-scene mindar-image="imageTargetSrc: ./qrkod.mind; autoStart: true;" embedded>
+
+<button id="toggleBtn">Normal Moda Geç</button>
+
+<!-- AR Mod: Marker takibi -->
+<a-scene id="arScene" mindar-image="imageTargetSrc: ./qrkod.mind;" embedded>
   <a-assets>
     <a-asset-item id="model" src="./model.glb"></a-asset-item>
   </a-assets>
-  <a-camera mindar-image-camera></a-camera>
-  <a-entity mindar-image-target="targetIndex: 0">
-    <a-gltf-model src="#model" scale="1 1 1"></a-gltf-model>
+
+  <a-light type="ambient" color="#fff"></a-light>
+  <a-light type="directional" color="#fff" position="1 1 1"></a-light>
+
+  <a-entity mindar-image-target="targetIndex: 0" id="targetWrapper">
+    <a-gltf-model id="modelEntity" src="#model" scale="3 3 3" position="0 0 0"></a-gltf-model>
   </a-entity>
+
+  <a-camera mindar-image-camera></a-camera>
 </a-scene>
+
+<!-- Normal Mod: model-viewer -->
+<model-viewer id="modelViewer" src="./model.glb" alt="3D Model" camera-controls auto-rotate style="display:none; width: 100vw; height: 100vh; background: black;"></model-viewer>
+
+<script>
+  const toggleBtn = document.getElementById('toggleBtn');
+  const arScene = document.getElementById('arScene');
+  const modelViewer = document.getElementById('modelViewer');
+
+  let isNormalMode = false;
+
+  toggleBtn.addEventListener('click', () => {
+    isNormalMode = !isNormalMode;
+    if (isNormalMode) {
+      // Normal moda geç
+      arScene.style.display = 'none';
+      modelViewer.style.display = 'block';
+      toggleBtn.textContent = 'AR Moduna Geç';
+    } else {
+      // AR moda geç
+      modelViewer.style.display = 'none';
+      arScene.style.display = 'block';
+      toggleBtn.textContent = 'Normal Moda Geç';
+    }
+  });
+</script>
+
 </body>
 </html>
