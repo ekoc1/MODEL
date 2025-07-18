@@ -37,7 +37,7 @@
 
 <button id="toggleBtn">Normal Moda Geç</button>
 
-<a-scene id="arScene" mindar-image="imageTargetSrc: ./qrkod.mind;" embedded>
+<a-scene id="arScene" mindar-image="imageTargetSrc: ./qrkod.mind; autoStart: true;" embedded>
   <a-assets>
     <a-asset-item id="model" src="./model.glb"></a-asset-item>
   </a-assets>
@@ -52,7 +52,7 @@
   <a-camera mindar-image-camera position="0 1.6 0"></a-camera>
 </a-scene>
 
-<model-viewer id="modelViewer" src="./model.glb" alt="3D Model" camera-controls auto-rotate style="background-color:black;"></model-viewer>
+<model-viewer id="modelViewer" src="./model.glb" alt="3D Model" camera-controls auto-rotate style="background-color:black; display: none;"></model-viewer>
 
 <script>
   const toggleBtn = document.getElementById('toggleBtn');
