@@ -2,31 +2,32 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>MindAR + Model Viewer Toggle</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MindAR ve model-viewer Toggle</title>
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-  <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
     body, html {
-      margin: 0; padding: 0; overflow: hidden; height: 100%;
-      font-family: Arial, sans-serif;
-      background: black;
+      margin:0; padding:0; overflow:hidden; height:100%;
+      background-color: black;
+      font-family: sans-serif;
     }
-    a-scene, model-viewer {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    #arScene, #modelViewer {
+      position: fixed; top: 0; left: 0;
+      width: 100vw; height: 100vh;
       background-color: black;
     }
+    #modelViewer {
+      display: none;
+    }
     #toggleBtn {
-      position: fixed;
-      top: 20px; left: 20px;
-      z-index: 9999;
-      padding: 12px 24px;
+      position: fixed; top: 20px; left: 20px; z-index: 9999;
+      padding: 10px 20px;
+      font-size: 16px;
       background-color: #2196f3;
       color: white;
       border: none;
-      border-radius: 6px;
-      font-size: 16px;
+      border-radius: 5px;
       cursor: pointer;
       user-select: none;
     }
@@ -34,55 +35,45 @@
 </head>
 <body>
 
-  <button id="toggleBtn">Normal Moda Geç</button>
+<button id="toggleBtn">Normal Moda Geç</button>
 
-  <!-- AR mod -->
-  <a-scene id="arScene" mindar-image="imageTargetSrc: ./qrkod.mind; autoStart: true;" embedded>
-    <a-assets>
-      <a-asset-item id="model" src="./model.glb"></a-asset-item>
-    </a-assets>
+<a-scene id="arScene" mindar-image="imageTargetSrc: ./qrkod.mind;" embedded>
+  <a-assets>
+    <a-asset-item id="model" src="./model.glb"></a-asset-item>
+  </a-assets>
 
-    <a-light type="ambient" color="#fff"></a-light>
-    <a-light type="directional" color="#fff" position="1 1 1"></a-light>
+  <a-light type="ambient" color="#fff"></a-light>
+  <a-light type="directional" color="#fff" position="1 1 1"></a-light>
 
-    <a-entity mindar-image-target="targetIndex: 0" visible="true">
-      <a-gltf-model src="#model" scale="5 5 5"></a-gltf-model>
-    </a-entity>
+  <a-entity mindar-image-target="targetIndex: 0">
+    <a-gltf-model src="#model" scale="1 1 1"></a-gltf-model>
+  </a-entity>
 
-    <a-camera mindar-image-camera position="0 1.6 0"></a-camera>
-  </a-scene>
+  <a-camera mindar-image-camera position="0 1.6 0"></a-camera>
+</a-scene>
 
-  <!-- Normal mod -->
-  <model-viewer
-    id="modelViewer"
-    src="./model.glb"
-    style="display:none"
-    camera-controls
-    interaction-prompt="none"
-    exposure="1"
-    environment-image="neutral"
-  ></model-viewer>
+<model-viewer id="modelViewer" src="./model.glb" alt="3D Model" camera-controls auto-rotate style="background-color:black;"></model-viewer>
 
-  <script>
-    const arScene = document.getElementById('arScene');
-    const modelViewer = document.getElementById('modelViewer');
-    const toggleBtn = document.getElementById('toggleBtn');
+<script>
+  const toggleBtn = document.getElementById('toggleBtn');
+  const arScene = document.getElementById('arScene');
+  const modelViewer = document.getElementById('modelViewer');
 
-    let isNormalMode = false;
+  let isNormalMode = false;
 
-    toggleBtn.addEventListener('click', () => {
-      if (!isNormalMode) {
-        arScene.style.display = 'none';
-        modelViewer.style.display = 'block';
-        toggleBtn.innerText = 'AR Moda Dön';
-      } else {
-        modelViewer.style.display = 'none';
-        arScene.style.display = 'block';
-        toggleBtn.innerText = 'Normal Moda Geç';
-      }
-      isNormalMode = !isNormalMode;
-    });
-  </script>
+  toggleBtn.addEventListener('click', () => {
+    isNormalMode = !isNormalMode;
+    if (isNormalMode) {
+      arScene.style.display = 'none';
+      modelViewer.style.display = 'block';
+      toggleBtn.textContent = 'AR Moduna Geç';
+    } else {
+      modelViewer.style.display = 'none';
+      arScene.style.display = 'block';
+      toggleBtn.textContent = 'Normal Moda Geç';
+    }
+  });
+</script>
 
 </body>
 </html>
