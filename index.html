@@ -2,69 +2,81 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>MindAR Test</title>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.5.0/dist/mindar-image-three.prod.js"></script>
-  <script type="module" src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/loaders/GLTFLoader.js"></script>
+  <title>AR Model Viewer</title>
   <style>
-    body, html { margin: 0; height: 100%; overflow: hidden; background: black; }
-    #startBtn {
-      position: fixed; top: 20px; left: 20px; z-index: 100;
-      background: #2196f3; color: white; border: none; padding: 10px 20px;
-      border-radius: 5px; cursor: pointer;
+    body, html {
+      margin: 0; padding: 0; overflow: hidden; height: 100%;
+      background: black;
+    }
+    #ar-button {
+      position: fixed; top: 10px; left: 10px; z-index: 10;
+      padding: 10px 20px; background: #2196f3; color: white; border: none; cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-<button id="startBtn">AR Başlat</button>
+<button id="ar-button">AR Başlat</button>
 
 <script type="module">
-  import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/loaders/GLTFLoader.js';
 
-  const startBtn = document.getElementById('startBtn');
-  startBtn.addEventListener('click', async () => {
-    startBtn.style.display = 'none';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js';
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/loaders/GLTFLoader.js';
 
-    const mindarThree = new window.MINDAR.IMAGE.MindARThree({
-      container: document.body,
-      imageTargetSrc: './qrkod.mind',
-    });
+let camera, scene, renderer;
+let model;
 
-    const { renderer, scene, camera } = mindarThree;
+const arButton = document.getElementById('ar-button');
 
-    const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
-    scene.add(light);
+arButton.addEventListener('click', () => {
+  if (!renderer) init();
+  animate();
+});
 
-    const loader = new GLTFLoader();
-    const gltf = await loader.loadAsync('./model.glb');
+function init() {
+  scene = new THREE.Scene();
 
-    const model = gltf.scene;
+  camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.01, 20);
+  camera.position.z = 1;
+
+  // Renderer
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x000000, 0); // transparent arka plan
+  document.body.appendChild(renderer.domElement);
+
+  // Işık
+  const light = new THREE.DirectionalLight(0xffffff, 1);
+  light.position.set(1,1,1);
+  scene.add(light);
+
+  // Model yükle
+  const loader = new GLTFLoader();
+  loader.load('https://models.babylonjs.com/CornellBox/glTF/CornellBox.gltf', gltf => {
+    model = gltf.scene;
     model.scale.set(0.2, 0.2, 0.2);
-    model.position.set(0, 0, 0);
     scene.add(model);
-
-    const anchor = mindarThree.addAnchor(0);
-    anchor.group.visible = false;
-
-    anchor.onTargetFound = () => {
-      anchor.group.visible = true;
-      model.position.copy(anchor.group.position);
-      model.quaternion.copy(anchor.group.quaternion);
-      console.log("Marker bulundu");
-    };
-    anchor.onTargetLost = () => {
-      anchor.group.visible = false;
-      console.log("Marker kayboldu");
-    };
-
-    await mindarThree.start();
-
-    renderer.setAnimationLoop(() => {
-      renderer.render(scene, camera);
-    });
+  }, undefined, e => {
+    console.error(e);
   });
-</script>
 
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  if (model) {
+    model.rotation.y += 0.01;
+  }
+
+  renderer.render(scene, camera);
+}
+
+</script>
 </body>
 </html>
