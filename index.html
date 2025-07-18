@@ -1,101 +1,89 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-  <meta charset="utf-8" />
-  <title>MindAR Freeze Button Debug</title>
+  <meta charset="UTF-8" />
+  <title>MindAR + Model Viewer Toggle</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
-    html, body { margin: 0; padding: 0; overflow: hidden; height: 100%; }
-    canvas, a-scene { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; }
-    #freezeButton {
-      position: fixed; top: 20px; left: 20px; z-index: 999;
-      padding: 10px 20px; font-size: 16px;
-      background-color: #2196f3; color: white;
-      border: none; border-radius: 5px;
+    body, html {
+      margin: 0; padding: 0; overflow: hidden; height: 100%;
+      font-family: Arial, sans-serif;
+    }
+    a-scene, model-viewer {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background-color: #000;
+    }
+    #toggleBtn {
+      position: fixed;
+      top: 20px; left: 20px;
+      z-index: 9999;
+      padding: 12px 24px;
+      background-color: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
       cursor: pointer;
+      user-select: none;
     }
   </style>
 </head>
 <body>
-  <button id="freezeButton">Dondur</button>
 
-  <a-scene mindar-image="imageTargetSrc: ./qrkod.mind" embedded>
+  <button id="toggleBtn">Normal Moda Geç</button>
+
+  <!-- AR mod -->
+  <a-scene id="arScene" mindar-image="imageTargetSrc: ./qrkod.mind;" embedded>
     <a-assets>
       <a-asset-item id="model" src="./model.glb"></a-asset-item>
     </a-assets>
 
-    <a-camera look-controls="enabled: true"></a-camera>
-    <a-light type="ambient" intensity="1"></a-light>
-    <a-light type="directional" position="0 1 1" intensity="0.5"></a-light>
+    <a-light type="ambient" color="#fff"></a-light>
+    <a-light type="directional" color="#fff" position="1 1 1"></a-light>
 
-    <a-entity mindar-image-target="targetIndex: 0" id="targetWrapper" rotation="90 90 0">
-      <a-gltf-model id="modelEntity" src="#model" scale="5 5 5"></a-gltf-model>
-    </a-entity>
-
-    <a-entity id="frozenModel" visible="false">
+    <a-entity mindar-image-target="targetIndex: 0" visible="true">
       <a-gltf-model src="#model" scale="5 5 5"></a-gltf-model>
     </a-entity>
+
+    <a-camera position="0 1.6 0"></a-camera>
   </a-scene>
 
+  <!-- Normal mod -->
+  <model-viewer
+    id="modelViewer"
+    src="./model.glb"
+    style="display:none"
+    camera-controls="false"
+    interaction-prompt="none"
+    exposure="1"
+    environment-image="neutral"
+  ></model-viewer>
+
   <script>
-    const freezeButton = document.getElementById('freezeButton');
-    const sceneEl = document.querySelector('a-scene');
+    const arScene = document.getElementById('arScene');
+    const modelViewer = document.getElementById('modelViewer');
+    const toggleBtn = document.getElementById('toggleBtn');
 
-    let isFrozen = false;
+    let isNormalMode = false;
 
-    sceneEl.addEventListener('loaded', () => {
-      console.log('Scene loaded');
-
-      const mindarSystem = sceneEl.systems['mindar-image'];
-      const targetWrapper = document.getElementById('targetWrapper');
-      const frozenModel = document.getElementById('frozenModel');
-
-      console.log('mindarSystem:', mindarSystem);
-
-      freezeButton.addEventListener('click', () => {
-        console.log('Dondur butonuna tıklandı!');
-
-        if (!mindarSystem) {
-          console.warn('MindAR sistemi henüz hazır değil!');
-          return;
-        }
-
-        const targetObj = targetWrapper.object3D;
-        const frozenObj = frozenModel.object3D;
-
-        if (!isFrozen) {
-          mindarSystem.pause();
-          console.log('MindAR paused');
-
-          const pos = targetObj.getWorldPosition(new THREE.Vector3());
-          const quat = targetObj.getWorldQuaternion(new THREE.Quaternion());
-
-          frozenObj.position.copy(pos);
-          frozenObj.quaternion.copy(quat);
-
-          frozenModel.setAttribute('visible', 'true');
-          targetWrapper.setAttribute('visible', 'false');
-
-          freezeButton.innerText = 'Çöz';
-          isFrozen = true;
-
-          console.log('Model dondu');
-        } else {
-          mindarSystem.resume();
-          console.log('MindAR resumed');
-
-          frozenModel.setAttribute('visible', 'false');
-          targetWrapper.setAttribute('visible', 'true');
-
-          freezeButton.innerText = 'Dondur';
-          isFrozen = false;
-
-          console.log('Model çözüldü');
-        }
-      });
+    toggleBtn.addEventListener('click', () => {
+      if (!isNormalMode) {
+        // Normal moda geç
+        arScene.style.display = 'none';
+        modelViewer.style.display = 'block';
+        toggleBtn.innerText = 'AR Moda Dön';
+      } else {
+        // AR moda dön
+        modelViewer.style.display = 'none';
+        arScene.style.display = 'block';
+        toggleBtn.innerText = 'Normal Moda Geç';
+      }
+      isNormalMode = !isNormalMode;
     });
   </script>
+
 </body>
 </html>
