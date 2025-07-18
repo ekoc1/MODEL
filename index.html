@@ -2,27 +2,16 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>MindAR - Model Sabitleme</title>
+  <title>MindAR Test</title>
   <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.5.0/dist/mindar-image-three.prod.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/loaders/GLTFLoader.js"></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/loaders/GLTFLoader.js"></script>
   <style>
-    body, html {
-      margin: 0; overflow: hidden; height: 100%;
-      background-color: black;
-    }
+    body, html { margin: 0; height: 100%; overflow: hidden; background: black; }
     #startBtn {
-      position: fixed;
-      top: 20px; left: 20px;
-      z-index: 10;
-      padding: 10px 20px;
-      font-size: 16px;
-      background: #2196f3;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      user-select: none;
+      position: fixed; top: 20px; left: 20px; z-index: 100;
+      background: #2196f3; color: white; border: none; padding: 10px 20px;
+      border-radius: 5px; cursor: pointer;
     }
   </style>
 </head>
@@ -34,50 +23,39 @@
   import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/loaders/GLTFLoader.js';
 
   const startBtn = document.getElementById('startBtn');
-
   startBtn.addEventListener('click', async () => {
     startBtn.style.display = 'none';
 
     const mindarThree = new window.MINDAR.IMAGE.MindARThree({
       container: document.body,
       imageTargetSrc: './qrkod.mind',
-      // transparent arka plan, gerçek kamera görünür
-      uiLoading: "yes",
-      uiScanning: "yes",
-      uiError: "yes"
     });
 
     const { renderer, scene, camera } = mindarThree;
 
-    // Işık ekle
     const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
     scene.add(light);
 
-    // Model yükle
     const loader = new GLTFLoader();
     const gltf = await loader.loadAsync('./model.glb');
 
-    // Modeli sahneye sabit ekle (marker algılanmasa da görünsün)
     const model = gltf.scene;
     model.scale.set(0.2, 0.2, 0.2);
-    model.position.set(0, 0, -0.5);  // Kameranın biraz önünde sabit konumda
+    model.position.set(0, 0, 0);
     scene.add(model);
 
-    // Marker için anchor oluştur
     const anchor = mindarThree.addAnchor(0);
+    anchor.group.visible = false;
 
-    // Marker algılanınca modeli anchor pozisyonuna taşı ve görünür yap
     anchor.onTargetFound = () => {
+      anchor.group.visible = true;
       model.position.copy(anchor.group.position);
       model.quaternion.copy(anchor.group.quaternion);
-      model.visible = true;
-      console.log("Marker bulundu, model pozisyon güncellendi.");
+      console.log("Marker bulundu");
     };
-
-    // Marker kaybolunca modeli sahnede sabit bırak (görünür kalır)
     anchor.onTargetLost = () => {
-      console.log("Marker kayboldu, model sahnede sabit kalıyor.");
-      // model.visible = true;  // Görünür kalması için değişiklik yapma
+      anchor.group.visible = false;
+      console.log("Marker kayboldu");
     };
 
     await mindarThree.start();
