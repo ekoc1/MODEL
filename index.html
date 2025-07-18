@@ -1,82 +1,19 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <title>AR Model Viewer</title>
-  <style>
-    body, html {
-      margin: 0; padding: 0; overflow: hidden; height: 100%;
-      background: black;
-    }
-    #ar-button {
-      position: fixed; top: 10px; left: 10px; z-index: 10;
-      padding: 10px 20px; background: #2196f3; color: white; border: none; cursor: pointer;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AR Model Viewer</title>
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@webxr-input-profiles/motion-controllers@1.0.0/dist/motion-controllers.module.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ar.js@3.3.2/aframe/build/aframe-ar.min.js"></script>
 </head>
-<body>
-
-<button id="ar-button">AR Başlat</button>
-
-<script type="module">
-
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js';
-import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/loaders/GLTFLoader.js';
-
-let camera, scene, renderer;
-let model;
-
-const arButton = document.getElementById('ar-button');
-
-arButton.addEventListener('click', () => {
-  if (!renderer) init();
-  animate();
-});
-
-function init() {
-  scene = new THREE.Scene();
-
-  camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.01, 20);
-  camera.position.z = 1;
-
-  // Renderer
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(0x000000, 0); // transparent arka plan
-  document.body.appendChild(renderer.domElement);
-
-  // Işık
-  const light = new THREE.DirectionalLight(0xffffff, 1);
-  light.position.set(1,1,1);
-  scene.add(light);
-
-  // Model yükle
-  const loader = new GLTFLoader();
-  loader.load('https://models.babylonjs.com/CornellBox/glTF/CornellBox.gltf', gltf => {
-    model = gltf.scene;
-    model.scale.set(0.2, 0.2, 0.2);
-    scene.add(model);
-  }, undefined, e => {
-    console.error(e);
-  });
-
-  window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth/window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
-}
-
-function animate() {
-  requestAnimationFrame(animate);
-
-  if (model) {
-    model.rotation.y += 0.01;
-  }
-
-  renderer.render(scene, camera);
-}
-
-</script>
+<body style="margin:0; overflow:hidden;">
+<a-scene embedded arjs>
+  <a-marker preset="hiro">
+    <a-entity gltf-model="model/model.gltf" scale="0.5 0.5 0.5"></a-entity>
+  </a-marker>
+  <a-entity camera></a-entity>
+</a-scene>
 </body>
 </html>
