@@ -36,7 +36,7 @@
   <button id="toggleBtn">Normal Moda Geç</button>
 
   <!-- AR mod -->
-  <a-scene id="arScene" mindar-image="imageTargetSrc: ./qrkod.mind;" embedded>
+  <a-scene id="arScene" mindar-image="imageTargetSrc: ./qrkod.mind; autoStart: true;" embedded>
     <a-assets>
       <a-asset-item id="model" src="./model.glb"></a-asset-item>
     </a-assets>
@@ -48,7 +48,7 @@
       <a-gltf-model src="#model" scale="5 5 5"></a-gltf-model>
     </a-entity>
 
-    <a-camera position="0 1.6 0"></a-camera>
+    <a-camera mindar-image-camera position="0 1.6 0"></a-camera>
   </a-scene>
 
   <!-- Normal mod -->
