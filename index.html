@@ -1,19 +1,37 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>AR Model Viewer</title>
-<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@webxr-input-profiles/motion-controllers@1.0.0/dist/motion-controllers.module.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/ar.js@3.3.2/aframe/build/aframe-ar.min.js"></script>
+  <meta charset="UTF-8" />
+  <title>Model Viewer - model.glb</title>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #222;
+    }
+    model-viewer {
+      width: 400px;
+      height: 400px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+  </style>
 </head>
-<body style="margin:0; overflow:hidden;">
-<a-scene embedded arjs>
-  <a-marker preset="hiro">
-    <a-entity gltf-model="model/model.gltf" scale="0.5 0.5 0.5"></a-entity>
-  </a-marker>
-  <a-entity camera></a-entity>
-</a-scene>
+<body>
+
+<model-viewer 
+  src="model.glb" 
+  alt="3D Model" 
+  ar 
+  ar-modes="webxr scene-viewer quick-look" 
+  camera-controls 
+  auto-rotate 
+  background-color="#455A64">
+</model-viewer>
+
 </body>
 </html>
