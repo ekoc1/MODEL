@@ -2,34 +2,35 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>MindAR ve model-viewer Toggle</title>
+  <title>MindAR ve Model Viewer Toggle</title>
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
-    body, html {
-      margin:0; padding:0; overflow:hidden; height:100%;
+    html, body {
+      margin: 0; padding: 0; overflow: hidden; height: 100%;
       background-color: black;
       font-family: sans-serif;
     }
     #arScene, #modelViewer {
-      position: fixed; top: 0; left: 0;
+      position: fixed;
+      top: 0; left: 0;
       width: 100vw; height: 100vh;
-      background-color: black;
     }
     #modelViewer {
       display: none;
     }
     #toggleBtn {
-      position: fixed; top: 20px; left: 20px; z-index: 9999;
+      position: fixed;
+      top: 20px; left: 20px;
+      z-index: 9999;
       padding: 10px 20px;
-      font-size: 16px;
       background-color: #2196f3;
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      user-select: none;
+      font-size: 16px;
     }
   </style>
 </head>
@@ -49,28 +50,28 @@
     <a-gltf-model src="#model" scale="1 1 1"></a-gltf-model>
   </a-entity>
 
-  <a-camera mindar-image-camera position="0 1.6 0"></a-camera>
+  <a-camera mindar-image-camera></a-camera>
 </a-scene>
 
-<model-viewer id="modelViewer" src="./model.glb" alt="3D Model" camera-controls auto-rotate style="background-color:black; display: none;"></model-viewer>
+<model-viewer id="modelViewer" src="./model.glb" camera-controls auto-rotate background-color="black"></model-viewer>
 
 <script>
-  const toggleBtn = document.getElementById('toggleBtn');
-  const arScene = document.getElementById('arScene');
-  const modelViewer = document.getElementById('modelViewer');
+  const toggleBtn = document.getElementById("toggleBtn");
+  const arScene = document.getElementById("arScene");
+  const modelViewer = document.getElementById("modelViewer");
 
-  let isNormalMode = false;
+  let normalMode = false;
 
-  toggleBtn.addEventListener('click', () => {
-    isNormalMode = !isNormalMode;
-    if (isNormalMode) {
-      arScene.style.display = 'none';
-      modelViewer.style.display = 'block';
-      toggleBtn.textContent = 'AR Moduna Geç';
+  toggleBtn.addEventListener("click", () => {
+    normalMode = !normalMode;
+
+    if (normalMode) {
+      arScene.style.display = "none";
+      modelViewer.style.display = "block";
+      toggleBtn.textContent = "AR Moduna Geç";
     } else {
-      modelViewer.style.display = 'none';
-      arScene.style.display = 'block';
-      toggleBtn.textContent = 'Normal Moda Geç';
+      // Sayfayı tamamen yenile (MindAR sahnesini sıfırdan başlatmak için)
+      location.reload();
     }
   });
 </script>
