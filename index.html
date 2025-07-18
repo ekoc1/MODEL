@@ -2,15 +2,14 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>MindAR ve model-viewer Toggle</title>
+  <title>MindAR + Model Viewer Toggle</title>
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
     body, html {
-      margin:0; padding:0; overflow:hidden; height:100%;
+      margin: 0; padding: 0; overflow: hidden; height: 100%;
       background-color: black;
-      font-family: sans-serif;
     }
     #arScene, #modelViewer {
       position: fixed; top: 0; left: 0;
@@ -37,24 +36,24 @@
 
 <button id="toggleBtn">Normal Moda Geç</button>
 
-<!-- AR Mod: Marker takibi -->
-<a-scene id="arScene" mindar-image="imageTargetSrc: ./qrkod.mind;" embedded>
+<!-- AR Scene -->
+<a-scene id="arScene" mindar-image="imageTargetSrc: ./qrkod.mind;" embedded background="transparent: true">
   <a-assets>
     <a-asset-item id="model" src="./model.glb"></a-asset-item>
   </a-assets>
 
-  <a-light type="ambient" color="#fff"></a-light>
-  <a-light type="directional" color="#fff" position="1 1 1"></a-light>
+  <a-light type="ambient" color="#fff" intensity="1.2"></a-light>
+  <a-light type="directional" color="#fff" position="1 1 1" intensity="1.5"></a-light>
 
-  <a-entity mindar-image-target="targetIndex: 0" id="targetWrapper">
-    <a-gltf-model id="modelEntity" src="#model" scale="3 3 3" position="0 0 0"></a-gltf-model>
+  <a-entity mindar-image-target="targetIndex: 0">
+    <a-gltf-model src="#model" scale="1 1 1"></a-gltf-model>
   </a-entity>
 
   <a-camera mindar-image-camera></a-camera>
 </a-scene>
 
-<!-- Normal Mod: model-viewer -->
-<model-viewer id="modelViewer" src="./model.glb" alt="3D Model" camera-controls auto-rotate style="display:none; width: 100vw; height: 100vh; background: black;"></model-viewer>
+<!-- Model Viewer for normal mode -->
+<model-viewer id="modelViewer" src="./model.glb" alt="3D Model" camera-controls auto-rotate style="background-color:black;" exposure="1" shadow-intensity="1"></model-viewer>
 
 <script>
   const toggleBtn = document.getElementById('toggleBtn');
@@ -66,12 +65,10 @@
   toggleBtn.addEventListener('click', () => {
     isNormalMode = !isNormalMode;
     if (isNormalMode) {
-      // Normal moda geç
       arScene.style.display = 'none';
       modelViewer.style.display = 'block';
       toggleBtn.textContent = 'AR Moduna Geç';
     } else {
-      // AR moda geç
       modelViewer.style.display = 'none';
       arScene.style.display = 'block';
       toggleBtn.textContent = 'Normal Moda Geç';
