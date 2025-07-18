@@ -6,15 +6,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
     body, html {
       margin: 0; padding: 0; overflow: hidden; height: 100%;
       font-family: Arial, sans-serif;
+      background: black;
     }
     a-scene, model-viewer {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background-color: #000;
+      background-color: black;
     }
     #toggleBtn {
       position: fixed;
@@ -56,7 +57,7 @@
     id="modelViewer"
     src="./model.glb"
     style="display:none"
-    camera-controls="false"
+    camera-controls
     interaction-prompt="none"
     exposure="1"
     environment-image="neutral"
@@ -71,12 +72,10 @@
 
     toggleBtn.addEventListener('click', () => {
       if (!isNormalMode) {
-        // Normal moda geç
         arScene.style.display = 'none';
         modelViewer.style.display = 'block';
         toggleBtn.innerText = 'AR Moda Dön';
       } else {
-        // AR moda dön
         modelViewer.style.display = 'none';
         arScene.style.display = 'block';
         toggleBtn.innerText = 'Normal Moda Geç';
