@@ -2,28 +2,22 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>MindAR + Model Viewer Toggle</title>
-  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <title>MindAR - Model Sabitleme</title>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.5.0/dist/mindar-image-three.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/loaders/GLTFLoader.js"></script>
   <style>
     body, html {
-      margin: 0; padding: 0; overflow: hidden; height: 100%;
+      margin: 0; overflow: hidden; height: 100%;
       background-color: black;
     }
-    #arScene, #modelViewer {
-      position: fixed; top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background-color: black;
-    }
-    #modelViewer {
-      display: none;
-    }
-    #toggleBtn {
-      position: fixed; top: 20px; left: 20px; z-index: 9999;
+    #startBtn {
+      position: fixed;
+      top: 20px; left: 20px;
+      z-index: 10;
       padding: 10px 20px;
       font-size: 16px;
-      background-color: #2196f3;
+      background: #2196f3;
       color: white;
       border: none;
       border-radius: 5px;
@@ -34,45 +28,63 @@
 </head>
 <body>
 
-<button id="toggleBtn">Normal Moda Geç</button>
+<button id="startBtn">AR Başlat</button>
 
-<!-- AR Scene -->
-<a-scene id="arScene" mindar-image="imageTargetSrc: ./qrkod.mind;" embedded background="transparent: true">
-  <a-assets>
-    <a-asset-item id="model" src="./model.glb"></a-asset-item>
-  </a-assets>
+<script type="module">
+  import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/loaders/GLTFLoader.js';
 
-  <a-light type="ambient" color="#fff" intensity="1.2"></a-light>
-  <a-light type="directional" color="#fff" position="1 1 1" intensity="1.5"></a-light>
+  const startBtn = document.getElementById('startBtn');
 
-  <a-entity mindar-image-target="targetIndex: 0">
-    <a-gltf-model src="#model" scale="1 1 1"></a-gltf-model>
-  </a-entity>
+  startBtn.addEventListener('click', async () => {
+    startBtn.style.display = 'none';
 
-  <a-camera mindar-image-camera></a-camera>
-</a-scene>
+    const mindarThree = new window.MINDAR.IMAGE.MindARThree({
+      container: document.body,
+      imageTargetSrc: './qrkod.mind',
+      // transparent arka plan, gerçek kamera görünür
+      uiLoading: "yes",
+      uiScanning: "yes",
+      uiError: "yes"
+    });
 
-<!-- Model Viewer for normal mode -->
-<model-viewer id="modelViewer" src="./model.glb" alt="3D Model" camera-controls auto-rotate style="background-color:black;" exposure="1" shadow-intensity="1"></model-viewer>
+    const { renderer, scene, camera } = mindarThree;
 
-<script>
-  const toggleBtn = document.getElementById('toggleBtn');
-  const arScene = document.getElementById('arScene');
-  const modelViewer = document.getElementById('modelViewer');
+    // Işık ekle
+    const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+    scene.add(light);
 
-  let isNormalMode = false;
+    // Model yükle
+    const loader = new GLTFLoader();
+    const gltf = await loader.loadAsync('./model.glb');
 
-  toggleBtn.addEventListener('click', () => {
-    isNormalMode = !isNormalMode;
-    if (isNormalMode) {
-      arScene.style.display = 'none';
-      modelViewer.style.display = 'block';
-      toggleBtn.textContent = 'AR Moduna Geç';
-    } else {
-      modelViewer.style.display = 'none';
-      arScene.style.display = 'block';
-      toggleBtn.textContent = 'Normal Moda Geç';
-    }
+    // Modeli sahneye sabit ekle (marker algılanmasa da görünsün)
+    const model = gltf.scene;
+    model.scale.set(0.2, 0.2, 0.2);
+    model.position.set(0, 0, -0.5);  // Kameranın biraz önünde sabit konumda
+    scene.add(model);
+
+    // Marker için anchor oluştur
+    const anchor = mindarThree.addAnchor(0);
+
+    // Marker algılanınca modeli anchor pozisyonuna taşı ve görünür yap
+    anchor.onTargetFound = () => {
+      model.position.copy(anchor.group.position);
+      model.quaternion.copy(anchor.group.quaternion);
+      model.visible = true;
+      console.log("Marker bulundu, model pozisyon güncellendi.");
+    };
+
+    // Marker kaybolunca modeli sahnede sabit bırak (görünür kalır)
+    anchor.onTargetLost = () => {
+      console.log("Marker kayboldu, model sahnede sabit kalıyor.");
+      // model.visible = true;  // Görünür kalması için değişiklik yapma
+    };
+
+    await mindarThree.start();
+
+    renderer.setAnimationLoop(() => {
+      renderer.render(scene, camera);
+    });
   });
 </script>
 
